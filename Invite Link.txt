@@ -1,0 +1,3 @@
+Invite Link
+
+https://discord.com/api/oauth2/authorize?client_id=1012189345186324490&permissions=377957321792&scope=bot
