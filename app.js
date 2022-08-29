@@ -83,7 +83,7 @@ async function get_users(op,id=null,ls=true)
 
         if(aux)
         {
-            data.data.push({user_id:id,nick:aux,visits:0,late:null});
+            data.data.push({user_id:id,nick:aux,visits:0,late:0});
 
             output.push(aux);
         }
