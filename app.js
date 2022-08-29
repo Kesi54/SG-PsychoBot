@@ -2,6 +2,8 @@
 
 const list = require('./sort.js');
 
+const random = require('./rand.js');
+
 const { Client, IntentsBitField /*GatewayIntentBits, GuildMember*/ } = require('discord.js');
 
 const myIntents = new IntentsBitField();
@@ -15,6 +17,8 @@ const fs = require('fs');
 
 text = fs.readFileSync("./t.json");
 
+scramblers = fs.readFileSync("./scramblers.json");
+
 data = JSON.parse(text);
 
 const TOKEN = data.token;
@@ -23,7 +27,7 @@ const CLIENT_ID = data.id;
 
 const EMOTE = ['889605404789727272','🍔'];
 
-const ID = '1011312526883049472';
+const ID = '1012115235399794728'//'1011312526883049472';
 
 async function* itr(n)
 {
@@ -33,7 +37,7 @@ async function* itr(n)
     yield i++;
 }
 
-async function get_users(op)
+async function get_users(op,id=null,ls=true)
 {
     ch = await get_channel(op);
     gl = ch.guild;
@@ -43,7 +47,12 @@ async function get_users(op)
     //message = await ch.messages.fetch({limit:1})
     //last = await message.first();
     
-    last = await ch.messages.fetch(ID)
+    if (!id)
+
+        id = ID;
+
+    last = await ch.messages.fetch(id)
+
     reaction = last.reactions.cache.get(EMOTE[0])
 
     users = await reaction.users.fetch()
@@ -53,19 +62,32 @@ async function get_users(op)
     members = [];
     // e.g. add a role to each user
 
-    guild.members.cache.each(member => {
+    await guild.members.cache.each(member => {
         // do stuff with guild members here
 
-        members.push({id: member.user.id, nickname: member.nickname })
+        members[member.user.id] = member.nickname;  
       });
     
+    console.log(members);
+    
+    data = {data:[]};
     output = [];
 
     for await(let i of itr(Object.keys(users).length))
     {
         let id = users[i].id;
 
-        for await(let j of itr(members.length))
+        console.log(id);
+
+        let aux = members[id];
+
+        if(aux)
+        {
+            data.data.push({user_id:id,nick:aux,visits:0,late:null});
+
+            output.push(aux);
+        }
+            /*for await(let j of itr(members.length))
         {
             if (members[j].id === id && members[j].nickname)
             {
@@ -74,7 +96,7 @@ async function get_users(op)
             }
                 
             
-        }
+        }*/
         
     }
 
@@ -92,7 +114,11 @@ async function get_users(op)
 
     //return list.format(members);
 
-    return list.format(output);
+    if(ls)
+    
+        output = await list.format(output);
+    
+    return [output,data];
 }
 
 async function get_channel(op)
@@ -117,9 +143,17 @@ client.on('interactionCreate', async (interaction) => {
 
     else if (interaction.commandName === 'users') {
 
-        let op = interaction.options.getString('input')
+        let op = interaction.options.getString('channel')
 		
-        await interaction.reply(await get_users(op));
+        let id = interaction.options.getString('id')
+
+        let output, data;
+
+        [output,data] = await get_users(op,id);
+
+        await interaction.reply(output);
+
+        fs.writeFileSync("./scramblers.json",JSON.stringify(data))
 	}
 
     else if (interaction.commandName === 'chan') {
@@ -127,6 +161,52 @@ client.on('interactionCreate', async (interaction) => {
         let op = interaction.options.getString('input')
 
 		await interaction.reply(await get_channel(op));
+	}
+
+    else if (interaction.commandName === 'rand') {
+
+        let op = interaction.options.getString('channel')
+		
+        let id = interaction.options.getString('msg-id')
+
+        let size = interaction.options.getString('size')
+
+        let output, data;
+
+        [output,data] = await get_users(op,id,false);
+
+        let result = await random.random(data,size)
+
+        result = await list.format(result);
+
+        await interaction.reply(result);
+
+	}
+
+
+    else if (interaction.commandName === 'del') {
+
+        let chan = interaction.options.getString('chan')
+        
+        ch = await get_channel(chan);
+    
+        messages = await ch.messages.fetch({limit:20})
+        
+        console.log(messages);
+        res = false;
+        
+        messages.each(msg => {
+
+           if(msg.author.id ==='1012189345186324490')
+                
+                ch.messages.delete(msg.id);
+
+
+        })
+        
+        res = true;
+
+		await interaction.reply(`Deletion: ${res}`);
 	}
 });
 

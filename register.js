@@ -22,7 +22,37 @@ const commands = [
             {
                 required: true,
                 type: 3,
-                name: 'input',
+                name: 'channel',
+                description: 'chan'
+            },
+            {
+                required: false,
+                type: 3,
+                name: 'msg-id',
+                description: 'chan'
+            }
+        ]
+	},
+    {
+		name: 'rand',
+		description: 'Replies with Pong!',
+        options: [
+            {
+                required: true,
+                type: 3,
+                name: 'channel',
+                description: 'chan'
+            },
+            {
+                required: true,
+                type: 3,
+                name: 'size',
+                description: 'chan'
+            },
+            {
+                required: false,
+                type: 3,
+                name: 'msg-id',
                 description: 'chan'
             }
         ]
@@ -35,6 +65,25 @@ const commands = [
                 required: true,
                 type: 3,
                 name: 'input',
+                description: 'chan'
+            }
+        ]
+	},
+
+    {
+		name: 'del',
+		description: 'Replies with Pong!',
+        options: [
+            {
+                required: true,
+                type: 3,
+                name: 'id',
+                description: 'chan'
+            },
+            {
+                required: true,
+                type: 3,
+                name: 'chan',
                 description: 'chan'
             }
         ]
