@@ -25,7 +25,9 @@ module.exports.random = async (data,size)=>
 
     let iter = 0;
 
-    let Max = Object.keys(data).length;
+    let Max = data.data.length;
+
+    let table = data.data;
 
     let skip = false;
 
@@ -49,13 +51,13 @@ module.exports.random = async (data,size)=>
             
             m = Math.floor(Math.random()*Max)
         
-        let mem = Object.keys(data)[m]
+        let mem = table[m].user_id;
         
         if(!output[mem] || skip)
         {
-            output[mem] = data[mem];
+            output[mem] = table[m].nick;
 
-            out.push(output[mem]);
+            out.push(table[m]);
         }
            
 

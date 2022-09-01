@@ -26,6 +26,24 @@ const commands = [
                 description: 'chan'
             },
             {
+                required: true,
+                type: 3,
+                name: 'emote',
+                description: 'chan'
+            },
+            {
+                required: false,
+                type: 3,
+                name: 'role',
+                description: 'chan'
+            },
+            {
+                required: false,
+                type: 3,
+                name: 'acknowledge',
+                description: 'chan'
+            },
+            {
                 required: false,
                 type: 3,
                 name: 'msg-id',
@@ -46,6 +64,12 @@ const commands = [
             {
                 required: true,
                 type: 3,
+                name: 'emote',
+                description: 'chan'
+            },
+            {
+                required: true,
+                type: 3,
                 name: 'size',
                 description: 'chan'
             },
@@ -53,6 +77,30 @@ const commands = [
                 required: false,
                 type: 3,
                 name: 'msg-id',
+                description: 'chan'
+            }
+        ]
+	},
+    {
+		name: 'emote',
+		description: 'Replies with Pong!',
+        options: [
+            {
+                required: true,
+                type: 3,
+                name: 'emote',
+                description: 'chan'
+            }
+        ]
+	},
+    {
+		name: 'role',
+		description: 'Replies with Pong!',
+        options: [
+            {
+                required: true,
+                type: 3,
+                name: 'role',
                 description: 'chan'
             }
         ]

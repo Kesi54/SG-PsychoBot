@@ -7,9 +7,12 @@ const random = require('./rand.js');
 const { Client, IntentsBitField /*GatewayIntentBits, GuildMember*/ } = require('discord.js');
 
 const myIntents = new IntentsBitField();
+
 myIntents.add(IntentsBitField.Flags.GuildPresences, IntentsBitField.Flags.GuildMembers, IntentsBitField.Flags.Guilds);
 
-const client = new Client({ intents: myIntents });
+const mentions = {parse:['roles'],repliedUser:false};
+
+const client = new Client({ intents: myIntents, allowedMentions: mentions });
 
 //const client = new Client({ intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMembers] });
 
@@ -46,23 +49,75 @@ async function* itr(n)
     yield i++;
 }
 
-async function get_users(op,id=null,ls=true)
+function get_role(role)
 {
-    ch = await get_channel(op);
-    gl = ch.guild;
+    let id = "";
 
-    guild = client.guilds.cache.get(gl.id);
+    if(role)
+    {
+        let R =  role.split(/[&>]+/);
 
-    //message = await ch.messages.fetch({limit:1})
-    //last = await message.first();
+        if(R.length >= 2)
+        {
+            if(R[1])
+                
+                id = R[1];
+        
+        }
+
+        return id;
+    }
+}
+function get_emote(emote)
+{
+    let name = "null", id = "";
+
+    if(emote)
+    {
+        let E =  emote.split(/[:>]+/);
+
+        if(E.length >= 3)
+        {
+            if(E[1])
+                
+                name = E[1];
+            
+            if(E[2])
+            
+                id =  E[2]; 
+        }
+
+        return [name,id];
+    }
+}
+
+async function get_users(op,emote,id=null,ls=true)
+{
+    let ch = await get_channel(op);
+    
+    let gl = ch.guild;
+
+    let guild = client.guilds.cache.get(gl.id);
+
+    let last;
+
     
     if (!id)
+    {
+        let message = await ch.messages.fetch({limit:1})
+        
+        last = await message.first();
+    
+    }
+    else
 
-        id = ID;
+        last = await ch.messages.fetch(id)
+    
+    let emote_name, emote_id;
 
-    last = await ch.messages.fetch(id)
+    [emote_name,emote_id] = get_emote(emote);
 
-    reaction = last.reactions.cache.get(EMOTE[SEM].id)
+    reaction = last.reactions.cache.get(emote_id) //EMOTE[SEM].id
 
     users = await reaction.users.fetch()
 
@@ -153,20 +208,39 @@ client.on('interactionCreate', async (interaction) => {
     else if (interaction.commandName === 'users') {
 
         let op = interaction.options.getString('channel')
+
+        let emote = interaction.options.getString('emote')
 		
+        let ack = interaction.options.getString('acknowledge')
+
         let id = interaction.options.getString('msg-id')
+
+        let role = interaction.options.getString('role');
+
 
         let output, data;
 
-        [output,data] = await get_users(op,id);
+        [output,data] = await get_users(op,emote,id);
 
-        let m = `\nReact to this message with ${EMOTE[SEM].emote} once you're done with your visits!\nIf you're not in the list, ping us to add you to late comers`
+        let E = EMOTE[1].emote;
+
+        if(ack)
+
+            E = ack;
+
+        let m = `\nReact to this message with ${E} once you're done with your visits!\nIf you're not in the list, ping us to add you to late comers`
         
-        let response = await interaction.reply(ROLE[0] + '\n' + output + m);
+        let r = ROLE[0];
+
+        if(role)
+
+            R = role;
+
+        await interaction.reply(R + '\n' + output + m);
 
         let rep = await interaction.fetchReply();
 
-        await rep.react(EMOTE[SEM].id);
+        await rep.react(E);        
 
         fs.writeFileSync("./scramblers.json",JSON.stringify(data))
 	}
@@ -178,17 +252,42 @@ client.on('interactionCreate', async (interaction) => {
 		await interaction.reply(await get_channel(op));
 	}
 
+    else if (interaction.commandName === 'emote') {
+
+        let op = interaction.options.getString('emote')
+        
+        let name,id;
+
+        [name,id] = get_emote(op);
+
+		await interaction.reply(`${op} **Name**: :${name}: **ID**: ${id}`);
+	}
+
+    else if (interaction.commandName === 'role') {
+
+        let op = interaction.options.getString('role')
+        
+        let id;
+
+        id = get_role(op);
+
+		await interaction.reply(`${op} **ID**: ${id}`);
+	}
+
     else if (interaction.commandName === 'rand') {
 
         let op = interaction.options.getString('channel')
+
+        let emote = interaction.options.getString('emote')
+
+        let size = interaction.options.getString('size')
 		
         let id = interaction.options.getString('msg-id')
 
-        let size = interaction.options.getString('size')
-
+   
         let output, data;
 
-        [output,data] = await get_users(op,id,false);
+        [output,data] = await get_users(op,emote,id,false);
 
         let result = await random.random(data,size)
 
