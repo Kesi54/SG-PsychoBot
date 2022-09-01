@@ -46,6 +46,12 @@ const commands = [
             {
                 required: false,
                 type: 3,
+                name: 'ship',
+                description: 'chan'
+            },
+            {
+                required: false,
+                type: 3,
                 name: 'msg-id',
                 description: 'chan'
             }
@@ -95,6 +101,18 @@ const commands = [
 	},
     {
 		name: 'role',
+		description: 'Replies with Pong!',
+        options: [
+            {
+                required: true,
+                type: 3,
+                name: 'role',
+                description: 'chan'
+            }
+        ]
+	},
+    {
+		name: 'members',
 		description: 'Replies with Pong!',
         options: [
             {

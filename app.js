@@ -217,6 +217,7 @@ client.on('interactionCreate', async (interaction) => {
 
         let role = interaction.options.getString('role');
 
+        let ship = interaction.options.getString('ship');
 
         let output, data;
 
@@ -230,7 +231,7 @@ client.on('interactionCreate', async (interaction) => {
 
         let m = `\nReact to this message with ${E} once you're done with your visits!\nIf you're not in the list, ping us to add you to late comers`
         
-        let r = ROLE[0];
+        let R = ROLE[0];
 
         if(role)
 
@@ -242,7 +243,47 @@ client.on('interactionCreate', async (interaction) => {
 
         await rep.react(E);        
 
-        fs.writeFileSync("./scramblers.json",JSON.stringify(data))
+        let gn = interaction.guild.name;
+
+   
+        let path;
+        
+        
+        if(ship)
+        {
+            path =`PQ${ship}`
+        }
+        else
+        {
+
+            let conf = JSON.parse(fs.readFileSync(`./servers/${gn}/conf.json`,));
+
+            let keys = Object.keys(conf);
+    
+            let pq = 0;
+    
+            for(i=0; i < keys.length; i++)
+            {
+                if(role === conf[keys[i]])
+                {
+                    pq = i+1;
+    
+                    break;
+                }
+            }
+            
+            if(pq)
+            
+                path = `PQ${pq}`
+            
+            else
+            
+                path = "Unknown";
+        }
+
+       
+        
+        fs.writeFileSync(`./servers/${gn}/${path}/scramblers.json`,JSON.stringify(data))
 	}
 
     else if (interaction.commandName === 'chan') {
@@ -274,6 +315,25 @@ client.on('interactionCreate', async (interaction) => {
 		await interaction.reply(`${op} **ID**: ${id}`);
 	}
 
+    else if (interaction.commandName === 'members') {
+
+        let op = interaction.options.getString('role')
+        
+        let id = get_role(op);
+
+        let members = interaction.guild.roles.cache.get(id).members.map(m=>m.user.tag);//guild.roles.cache.get(id);
+            /* await guild.members.cache.each(member => {
+        // do stuff with guild members here
+
+        members[member.user.id] = member.nickname;  
+      }); */
+        console.log(members);
+        console.log(`Count: ${members.length}`)
+        //console.log(members.guild.members)
+    
+
+		await interaction.reply('List obtained');
+	}
     else if (interaction.commandName === 'rand') {
 
         let op = interaction.options.getString('channel')
