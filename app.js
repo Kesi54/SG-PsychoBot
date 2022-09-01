@@ -25,9 +25,18 @@ const TOKEN = data.token;
 
 const CLIENT_ID = data.id;
 
-const EMOTE = ['889605404789727272','🍔'];
+const EMOTE = 
+[
+    {emote:'<:SG:889605404789727272>',id:'889605404789727272'},
+    {emote:'🍔',id:'🍔'}
+];
+
+
+const SEM = 0;
 
 const ID = '1012115235399794728'//'1011312526883049472';
+
+const ROLE = ['<@&888863816383856660>']
 
 async function* itr(n)
 {
@@ -53,7 +62,7 @@ async function get_users(op,id=null,ls=true)
 
     last = await ch.messages.fetch(id)
 
-    reaction = last.reactions.cache.get(EMOTE[0])
+    reaction = last.reactions.cache.get(EMOTE[SEM].id)
 
     users = await reaction.users.fetch()
 
@@ -116,7 +125,7 @@ async function get_users(op,id=null,ls=true)
 
     if(ls)
     
-        output = await list.format(output);
+        output = await list.format(data);
     
     return [output,data];
 }
@@ -145,13 +154,19 @@ client.on('interactionCreate', async (interaction) => {
 
         let op = interaction.options.getString('channel')
 		
-        let id = interaction.options.getString('id')
+        let id = interaction.options.getString('msg-id')
 
         let output, data;
 
         [output,data] = await get_users(op,id);
 
-        await interaction.reply(output);
+        let m = `\nReact to this message with ${EMOTE[SEM].emote} once you're done with your visits!\nIf you're not in the list, ping us to add you to late comers`
+        
+        let response = await interaction.reply(ROLE[0] + '\n' + output + m);
+
+        let rep = await interaction.fetchReply();
+
+        await rep.react(EMOTE[SEM].id);
 
         fs.writeFileSync("./scramblers.json",JSON.stringify(data))
 	}

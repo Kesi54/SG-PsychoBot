@@ -8,7 +8,7 @@ else
 {
     console.log("cataplurg")
 } */
-
+/*
 var a = {data:[
     {
         "Name" : "Sachin",
@@ -92,3 +92,66 @@ console.log(res);
 
    //show only those under max
 
+*/
+
+ let a = [1];
+
+ if(a.length)
+    
+    console.log("TRUE")
+
+else
+
+    console.log("FALSE");
+
+
+    async function get_late(op,id)
+{
+    let output, data;
+
+    [output,data] = await get_users(op,id,false);
+
+    let l1 = scramblers.data.length, l2 = data.data.length;
+
+    let late_comers = {data: []};
+
+    let j1 = scramblers.data, j2 = data.data;
+
+    let aux = false;
+
+    let out = [];
+
+    for await(i of itr(l2))
+    {   
+
+        for await(j of itr(l1))
+        {   
+            if(j1[j])
+            {
+                if(!(JSON.stringify(j1[j])) === JSON.stringify(j2[i]))
+                {
+                    j1[j] = null;
+
+                    aux = true;
+
+                    break;
+                }
+            }
+        }
+
+        if(!aux)
+        
+            late_comers.data.push(j2[i]);
+        
+        else
+            
+            aux = false;
+    }
+
+
+    if (late_comers.data.length)
+
+        return [true,late_comers]
+
+    //message.channel.lastMessageID
+}
